@@ -15,20 +15,20 @@ app.use(bodyParser.json());
 
 // Route: Send OTP
 app.post("/send-otp", async (req, res) => {
-  const { mobileNumber, message } =
+  const { mobileNumber, message, authkey } =
     req.body;
 
   // Validate Input
   if (
     !mobileNumber ||
-    !message
+    !message || !authkey
   ) {
     return res.status(400).json({ error: "All fields are required!" });
   }
 
   // Prepare Request Payload
   const urlencoded = new URLSearchParams();
-  urlencoded.append("authkey", "412590AKveCHLSBnd4658bcea0P1");
+  urlencoded.append("authkey", authkey);
   urlencoded.append("mobile", mobileNumber);
   urlencoded.append("message", message);
   urlencoded.append("sender", "TULASD");
@@ -56,10 +56,10 @@ app.post("/send-otp", async (req, res) => {
 
 // Route: Verify OTP
 app.post("/verify-otp", async (req, res) => {
-  const { mobileNumber, otp } = req.body;
+  const { mobileNumber, otp, authkey } = req.body;
 
   // Validate Input
-  if (!mobileNumber || !otp) {
+  if (!mobileNumber || !otp || !authkey) {
     return res
       .status(400)
       .json({ error: "Mobile number and OTP are required!" });
@@ -73,7 +73,7 @@ app.post("/verify-otp", async (req, res) => {
     const requestOptions = {
       method: "GET",
       headers: {
-        authkey: "412590AKveCHLSBnd4658bcea0P1",
+        authkey: authkey,
       },
       redirect: "follow",
     };
@@ -105,16 +105,16 @@ app.post("/verify-otp", async (req, res) => {
 
 // Route: Retry OTP
 app.post("/retry-otp", async (req, res) => {
-  const { mobileNumber } = req.body;
+  const { mobileNumber, authkey } = req.body;
 
   // Validate Input
-  if (!mobileNumber) {
+  if (!mobileNumber || !authkey) {
     return res.status(400).json({ error: "Mobile number is required!" });
   }
 
   try {
     // Construct URL for Retrying OTP
-    const url = `https://control.msg91.com/api/v5/otp/retry?retrytype=text&mobile=${mobileNumber}&authkey=412590AKveCHLSBnd4658bcea0P1`; // Replace with your actual authkey
+    const url = `https://control.msg91.com/api/v5/otp/retry?retrytype=text&mobile=${mobileNumber}&authkey=${authkey}`; // Replace with your actual authkey
 
     // Make API Request to MSG91
     const requestOptions = {
